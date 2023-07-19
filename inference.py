@@ -13,11 +13,13 @@ from time import time
 from PIL import Image
 from torchvision.transforms import transforms
 
-from models.model import ViTPose
-from utils.visualization import draw_points_and_skeleton, joints_dict
-from utils.dist_util import get_dist_info, init_dist
-from utils.top_down_eval import keypoints_from_heatmaps
+from VitPose.models.model import ViTPose
+from VitPose.utils.visualization import draw_points_and_skeleton, joints_dict
+from VitPose.utils.dist_util import get_dist_info, init_dist
+from VitPose.utils.top_down_eval import keypoints_from_heatmaps
 
+from VitPose.configs.ViTPose_base_coco_256x192 import model as model_cfg
+from VitPose.configs.ViTPose_base_coco_256x192 import data_cfg
 __all__ = ['inference']
 
 
@@ -26,7 +28,7 @@ __all__ = ['inference']
 class ViT:
     def __init__(self):
         self.device = 'cuda'
-        CKPT_PATH = "./checkpoints/vitpose-b-multi-coco.pth"
+        CKPT_PATH = "./VitPose/checkpoints/vitpose-b-multi-coco.pth"
         # Prepare model
         self.vit_pose = ViTPose(model_cfg)
 
@@ -42,6 +44,8 @@ class ViT:
         self.img_size = data_cfg['image_size']
 
     def inference(self,img):
+        img = cv2.cvtColor(img, cv2.COLOR_BGR2RGB)
+        img = Image.fromarray(img)
         org_w, org_h = img.size
 
         img_tensor = transforms.Compose (
@@ -74,8 +78,7 @@ class ViT:
 
 
 if __name__ == "__main__":
-    from configs.ViTPose_base_coco_256x192 import model as model_cfg
-    from configs.ViTPose_base_coco_256x192 import data_cfg
+
 
 
     img = Image.open('examples/img1.jpg')
